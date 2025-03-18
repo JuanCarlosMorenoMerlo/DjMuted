@@ -1,1 +1,75 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bolsa de Cubatas</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        body { font-family: Arial, sans-serif; text-align: center; background-color: #1a1a1a; color: white; }
+        .container { max-width: 600px; margin: 20px auto; }
+        .drink { display: flex; justify-content: space-between; background: #333; padding: 10px; margin: 10px; border-radius: 10px; }
+        .drink span { font-size: 1.5em; }
+        .credits { margin-top: 20px; font-size: 0.8em; color: gray; }
+    </style>
+</head>
+<body>
+    <h1>📈 Bolsa de Cubatas 🍹</h1>
+    <div class="container" id="drink-list"></div>
+    <canvas id="priceChart"></canvas>
+    <div class="credits">Desarrollado por Juan Carlos Moreno Merlo</div>
+
+    <script>
+        let drinks = [
+            { name: "Mojito", price: 5 },
+            { name: "Cuba Libre", price: 5 },
+            { name: "Tequila Sunrise", price: 5 },
+            { name: "Gin Tonic", price: 5 }
+        ];
+
+        function updatePrices() {
+            drinks.forEach(drink => {
+                let change = (Math.random() * 2 - 1).toFixed(2); 
+                drink.price = Math.max(3, Math.min(10, drink.price + parseFloat(change))); 
+            });
+            renderDrinks();
+            updateChart();
+        }
+
+        function renderDrinks() {
+            let list = document.getElementById("drink-list");
+            list.innerHTML = "";
+            drinks.forEach(drink => {
+                let div = document.createElement("div");
+                div.className = "drink";
+                div.innerHTML = `<span>${drink.name}</span> <span>${drink.price.toFixed(2)}€</span>`;
+                list.appendChild(div);
+            });
+        }
+
+        let ctx = document.getElementById('priceChart').getContext('2d');
+        let priceChart = new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: drinks.map(d => d.name),
+                datasets: [{
+                    label: 'Precio (€)',
+                    data: drinks.map(d => d.price),
+                    backgroundColor: 'rgba(255, 99, 132, 0.2)',
+                    borderColor: 'rgba(255, 99, 132, 1)',
+                    borderWidth: 2
+                }]
+            },
+        });
+
+        function updateChart() {
+            priceChart.data.datasets[0].data = drinks.map(d => d.price);
+            priceChart.update();
+        }
+
+        setInterval(updatePrices, 5000);
+        renderDrinks();
+    </script>
+</body>
+</html>
 
