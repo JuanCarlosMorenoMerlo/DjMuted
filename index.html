@@ -13,15 +13,24 @@
         .controls { display: flex; gap: 5px; }
         .controls button { padding: 5px; font-size: 1em; cursor: pointer; }
         .credits { margin-top: 20px; font-size: 0.8em; color: gray; }
-        .chart-container { width: 90%; max-width: 800px; height: 400px; margin: auto; }
+        .chart-container { width: 90%; max-width: 800px; height: 400px; margin: auto; position: relative; }
         .legend { display: flex; flex-wrap: wrap; justify-content: center; gap: 10px; margin: 10px 0; }
         .legend label { cursor: pointer; }
+        .chart-controls { margin-bottom: 10px; }
     </style>
 </head>
 <body>
     <h1>📈 Bolsa de Cubatas 🍹</h1>
-    <div class="legend" id="legend"></div>
     <div class="container" id="drink-list"></div>
+    <div class="legend" id="legend"></div>
+    <div class="chart-controls">
+        <label for="time-range">Selecciona horario: </label>
+        <select id="time-range" onchange="updateChart()">
+            <option value="00-08">00:00 - 08:00</option>
+            <option value="08-16">08:00 - 16:00</option>
+            <option value="16-24">16:00 - 24:00</option>
+        </select>
+    </div>
     <div class="chart-container">
         <canvas id="priceChart"></canvas>
     </div>
@@ -78,10 +87,10 @@
         let priceChart = new Chart(ctx, {
             type: 'line',
             data: {
-                labels: drinks.map(d => d.name),
+                labels: Array.from({ length: 9 }, (_, i) => `${i}:00`),
                 datasets: drinks.map(d => ({
                     label: d.name,
-                    data: [d.price],
+                    data: Array(9).fill(d.price),
                     borderColor: d.color,
                     borderWidth: 2,
                     fill: false,
@@ -91,6 +100,10 @@
             options: {
                 maintainAspectRatio: false,
                 responsive: true,
+                scales: {
+                    y: { title: { display: true, text: "Precio (€)" } },
+                    x: { title: { display: true, text: "Horario" } }
+                },
                 plugins: {
                     legend: { display: false }
                 }
@@ -98,8 +111,14 @@
         });
 
         function updateChart() {
+            let timeRange = document.getElementById("time-range").value;
+            let hours = timeRange === "00-08" ? Array.from({ length: 9 }, (_, i) => `${i}:00`) :
+                        timeRange === "08-16" ? Array.from({ length: 9 }, (_, i) => `${i + 8}:00`) :
+                        Array.from({ length: 9 }, (_, i) => `${i + 16}:00`);
+
+            priceChart.data.labels = hours;
             priceChart.data.datasets.forEach((dataset, index) => {
-                dataset.data = [drinks[index].price];
+                dataset.data = Array(9).fill(drinks[index].price);
                 dataset.hidden = !drinks[index].visible;
             });
             priceChart.update();
@@ -109,4 +128,3 @@
     </script>
 </body>
 </html>
-
