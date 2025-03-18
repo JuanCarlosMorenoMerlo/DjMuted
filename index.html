@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Bolsa de Cubatas</title>
+    <title>Discoteca Seven</title>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
         body { font-family: Arial, sans-serif; text-align: center; background-color: #1a1a1a; color: white; }
@@ -11,27 +11,33 @@
         .drink { display: flex; justify-content: space-between; background: #333; padding: 10px; margin: 10px; border-radius: 10px; }
         .drink span { font-size: 1.5em; }
         .credits { margin-top: 20px; font-size: 0.8em; color: gray; }
+        .chart-container { width: 100%; max-width: 400px; height: 250px; margin: auto; }
+        .controls button { margin: 0 5px; padding: 5px; }
     </style>
 </head>
 <body>
     <h1>📈 Bolsa de Cubatas 🍹</h1>
     <div class="container" id="drink-list"></div>
-    <canvas id="priceChart"></canvas>
+    <div class="chart-container">
+        <canvas id="priceChart"></canvas>
+    </div>
     <div class="credits">Desarrollado por Juan Carlos Moreno Merlo</div>
 
     <script>
         let drinks = [
-            { name: "Mojito", price: 5 },
-            { name: "Cuba Libre", price: 5 },
-            { name: "Tequila Sunrise", price: 5 },
-            { name: "Gin Tonic", price: 5 }
+            { name: "Licor 43", price: 5 },
+            { name: "Jack Daniel", price: 5 },
+            { name: "Jägermaister", price: 5 },
+            { name: "Red Label", price: 5 },
+            { name: "Ron Barcelo", price: 5 },
+            { name: "Bacardi", price: 5 },
+            { name: "Absolut Vodka", price: 5 },
+            { name: "JB", price: 5 },
+            { name: "Puerto de Indias", price: 5 }
         ];
 
-        function updatePrices() {
-            drinks.forEach(drink => {
-                let change = (Math.random() * 2 - 1).toFixed(2); 
-                drink.price = Math.max(3, Math.min(10, drink.price + parseFloat(change))); 
-            });
+        function changePrice(index, delta) {
+            drinks[index].price = Math.max(3, Math.min(10, drinks[index].price + delta));
             renderDrinks();
             updateChart();
         }
@@ -39,10 +45,12 @@
         function renderDrinks() {
             let list = document.getElementById("drink-list");
             list.innerHTML = "";
-            drinks.forEach(drink => {
+            drinks.forEach((drink, index) => {
                 let div = document.createElement("div");
                 div.className = "drink";
-                div.innerHTML = `<span>${drink.name}</span> <span>${drink.price.toFixed(2)}€</span>`;
+                div.innerHTML = `<span>${drink.name}</span> <span>${drink.price.toFixed(2)}€</span> 
+                                <button onclick="changePrice(${index}, 0.5)">+</button>
+                                <button onclick="changePrice(${index}, -0.5)">-</button>`;
                 list.appendChild(div);
             });
         }
@@ -60,6 +68,10 @@
                     borderWidth: 2
                 }]
             },
+            options: {
+                maintainAspectRatio: false,
+                responsive: true
+            }
         });
 
         function updateChart() {
@@ -67,7 +79,6 @@
             priceChart.update();
         }
 
-        setInterval(updatePrices, 5000);
         renderDrinks();
     </script>
 </body>
