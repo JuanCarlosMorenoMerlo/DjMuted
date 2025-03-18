@@ -3,20 +3,20 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Discoteca Seven</title>
+    <title>Bolsa de Cubatas</title>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
         body { font-family: Arial, sans-serif; text-align: center; background-color: #1a1a1a; color: white; }
-        .container { max-width: 600px; margin: 20px auto; }
-        .drink { display: flex; justify-content: space-between; background: #333; padding: 10px; margin: 10px; border-radius: 10px; }
-        .drink span { font-size: 1.5em; }
+        .container { display: flex; flex-wrap: wrap; justify-content: center; gap: 20px; max-width: 800px; margin: 20px auto; }
+        .drink { display: flex; justify-content: space-between; align-items: center; background: #333; padding: 10px; border-radius: 10px; width: 45%; }
+        .drink span { font-size: 1.2em; }
         .credits { margin-top: 20px; font-size: 0.8em; color: gray; }
-        .chart-container { width: 100%; max-width: 400px; height: 250px; margin: auto; }
+        .chart-container { width: 90%; max-width: 800px; height: 300px; margin: auto; }
         .controls button { margin: 0 5px; padding: 5px; }
     </style>
 </head>
 <body>
-    <h1>📈 Bolsa de Cubatas 🍹</h1>
+    <h1>📈 Discoteca Seven 🍹</h1>
     <div class="container" id="drink-list"></div>
     <div class="chart-container">
         <canvas id="priceChart"></canvas>
@@ -83,4 +83,3 @@
     </script>
 </body>
 </html>
-
