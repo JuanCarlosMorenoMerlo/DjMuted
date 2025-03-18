@@ -1,137 +1,111 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Bolsa de Cubatas</title>
-  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-  <style>
-    body { font-family: Arial, sans-serif; text-align: center; background-color: #1a1a1a; color: white; }
-    .container { display: flex; flex-wrap: wrap; justify-content: center; gap: 20px; max-width: 800px; margin: 20px auto; }
-    .drink { display: flex; align-items: center; justify-content: space-between; background: #333; padding: 10px; border-radius: 10px; width: 100%; max-width: 400px; }
-    .drink span { font-size: 1.2em; flex: 1; text-align: center; }
-    .controls { display: flex; gap: 5px; }
-    .controls button { padding: 5px; font-size: 1em; cursor: pointer; }
-    .credits { margin-top: 20px; font-size: 0.8em; color: gray; }
-    .chart-container { width: 90%; max-width: 800px; height: 400px; margin: auto; position: relative; }\n    .legend { display: flex; flex-wrap: wrap; justify-content: center; gap: 10px; margin: 10px 0; }\n    .legend label { cursor: pointer; }\n    .chart-controls { margin-bottom: 10px; }\n  </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bolsa de Cubatas</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        body { font-family: Arial, sans-serif; text-align: center; background-color: #1a1a1a; color: white; }
+        .container { display: flex; flex-wrap: wrap; justify-content: center; gap: 20px; max-width: 800px; margin: 20px auto; }
+        .drink { display: flex; align-items: center; justify-content: space-between; background: #333; padding: 10px; border-radius: 10px; width: 100%; max-width: 400px; }
+        .drink span { font-size: 1.2em; flex: 1; text-align: center; }
+        .controls { display: flex; gap: 5px; }
+        .controls button { padding: 5px; font-size: 1em; cursor: pointer; }
+        .credits { margin-top: 20px; font-size: 0.8em; color: gray; }
+        .chart-container { width: 90%; max-width: 800px; height: 400px; margin: auto; }
+        .legend { display: flex; flex-wrap: wrap; justify-content: center; gap: 10px; margin: 10px 0; }
+        .legend label { cursor: pointer; }
+    </style>
 </head>
 <body>
-  <h1>📈 Bolsa de Cubatas 🍹</h1>
-  <div class="container" id="drink-list"></div>
-  <!-- Checkboxes entre los nombres y la gráfica -->
-  <div class="legend" id="legend"></div>
-  <div class="chart-controls">
-    <label for="time-range">Selecciona horario: </label>
-    <select id="time-range" onchange="updateChart()">
-      <option value="00-08">00:00 - 08:00</option>
-      <option value="08-16">08:00 - 16:00</option>
-      <option value="16-24">16:00 - 24:00</option>
-    </select>
-  </div>
-  <div class="chart-container">
-    <canvas id="priceChart"></canvas>
-  </div>
-  <div class="credits">Desarrollado por Juan Carlos Moreno Merlo</div>
+    <h1>📈 Bolsa de Cubatas 🍹</h1>
+    <div class="legend" id="legend"></div>
+    <div class="container" id="drink-list"></div>
+    <div class="chart-container">
+        <canvas id="priceChart"></canvas>
+    </div>
+    <div class="credits">Desarrollado por Juan Carlos Moreno Merlo</div>
 
-  <script>
-    // Función para generar 8 tramos horarios (ej. "00:00-01:00", ..., "07:00-08:00")
-    function getLabels(timeRange) {
-      let startHour;
-      if (timeRange === "00-08") startHour = 0;
-      else if (timeRange === "08-16") startHour = 8;
-      else if (timeRange === "16-24") startHour = 16;
-      const labels = [];
-      for (let i = 0; i < 8; i++) {
-        let h1 = String(startHour + i).padStart(2, '0');
-        let h2 = String(startHour + i + 1).padStart(2, '0');
-        labels.push(`${h1}:00-${h2}:00`);
-      }
-      return labels;
-    }
+    <script>
+        let drinks = [
+            { name: "Licor 43", price: 5, color: "red", visible: true },
+            { name: "Jack Daniel", price: 5, color: "blue", visible: true },
+            { name: "Jägermaister", price: 5, color: "green", visible: true },
+            { name: "Red Label", price: 5, color: "orange", visible: true },
+            { name: "Ron Barcelo", price: 5, color: "purple", visible: true },
+            { name: "Bacardi", price: 5, color: "yellow", visible: true },
+            { name: "Absolut Vodka", price: 5, color: "pink", visible: true },
+            { name: "JB", price: 5, color: "cyan", visible: true },
+            { name: "Puerto de Indias", price: 5, color: "lime", visible: true }
+        ];
 
-    // Datos iniciales de los cubatas
-    let drinks = [
-      { name: "Licor 43", price: 5, color: "red", visible: true },
-      { name: "Jack Daniel", price: 5, color: "blue", visible: true },
-      { name: "Jägermaister", price: 5, color: "green", visible: true },
-      { name: "Red Label", price: 5, color: "orange", visible: true },
-      { name: "Ron Barcelo", price: 5, color: "purple", visible: true },
-      { name: "Bacardi", price: 5, color: "yellow", visible: true },
-      { name: "Absolut Vodka", price: 5, color: "pink", visible: true },
-      { name: "JB", price: 5, color: "cyan", visible: true },
-      { name: "Puerto de Indias", price: 5, color: "lime", visible: true }
-    ];
+        function changePrice(index, delta) {
+            drinks[index].price = Math.max(3, Math.min(10, drinks[index].price + delta));
+            renderDrinks();
+            updateChart();
+        }
 
-    // Plugin para dibujar nombres a la izquierda y precios a la derecha de la gráfica
-    Chart.register({
-      id: 'customLabels',
-      afterDatasetsDraw(chart, args, options) {
-        const { ctx, chartArea: { left, right }, scales: { y } } = chart;
-        ctx.save();
-        ctx.font = '12px Arial';
-        ctx.fillStyle = 'white';
-        chart.data.datasets.forEach(dataset => {
-          if (!dataset.hidden) {
-            // Usamos el valor constante del precio para determinar la posición vertical
-            const yValue = dataset.data[0];
-            const yPixel = y.getPixelForValue(yValue);
-            // Dibujar el nombre a la izquierda (alineado a la derecha)
-            ctx.textAlign = 'right';
-            ctx.fillText(dataset.label, left - 10, yPixel);
-            // Dibujar el precio a la derecha (alineado a la izquierda)
-            ctx.textAlign = 'left';
-            ctx.fillText(dataset.data[0] + '€', right + 10, yPixel);
-          }
+        function toggleDrink(index) {
+            drinks[index].visible = !drinks[index].visible;
+            updateChart();
+        }
+
+        function renderDrinks() {
+            let list = document.getElementById("drink-list");
+            let legend = document.getElementById("legend");
+            list.innerHTML = "";
+            legend.innerHTML = "";
+
+            drinks.forEach((drink, index) => {
+                let div = document.createElement("div");
+                div.className = "drink";
+                div.innerHTML = `<span>${drink.name}</span> <span>${drink.price.toFixed(2)}€</span>
+                                <div class="controls">
+                                    <button onclick="changePrice(${index}, 0.5)">+</button>
+                                    <button onclick="changePrice(${index}, -0.5)">-</button>
+                                </div>`;
+                list.appendChild(div);
+
+                let label = document.createElement("label");
+                label.innerHTML = `<input type="checkbox" checked onchange="toggleDrink(${index})"> ${drink.name}`;
+                label.style.color = drink.color;
+                legend.appendChild(label);
+            });
+        }
+
+        let ctx = document.getElementById('priceChart').getContext('2d');
+        let priceChart = new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: drinks.map(d => d.name),
+                datasets: drinks.map(d => ({
+                    label: d.name,
+                    data: [d.price],
+                    borderColor: d.color,
+                    borderWidth: 2,
+                    fill: false,
+                    hidden: !d.visible
+                }))
+            },
+            options: {
+                maintainAspectRatio: false,
+                responsive: true,
+                plugins: {
+                    legend: { display: false }
+                }
+            }
         });
-        ctx.restore();
-      }
-    });
 
-    // Función para cambiar el precio
-    function changePrice(index, delta) {
-      drinks[index].price = Math.max(3, Math.min(10, drinks[index].price + delta));
-      renderDrinks();
-      updateChart();
-    }
+        function updateChart() {
+            priceChart.data.datasets.forEach((dataset, index) => {
+                dataset.data = [drinks[index].price];
+                dataset.hidden = !drinks[index].visible;
+            });
+            priceChart.update();
+        }
 
-    // Función para alternar la visibilidad de un cubata
-    function toggleDrink(index) {
-      drinks[index].visible = !drinks[index].visible;
-      updateChart();
-    }
-
-    // Renderizar la lista de cubatas y checkboxes
-    function renderDrinks() {
-      let list = document.getElementById("drink-list");
-      let legend = document.getElementById("legend");
-      list.innerHTML = "";
-      legend.innerHTML = "";
-      
-      drinks.forEach((drink, index) => {
-        let div = document.createElement("div");
-        div.className = "drink";
-        div.innerHTML = `<span>${drink.name}</span> <span>${drink.price.toFixed(2)}€</span>
-                          <div class="controls">
-                            <button onclick="changePrice(${index}, 0.5)">+</button>
-                            <button onclick="changePrice(${index}, -0.5)">-</button>
-                          </div>`;
-        list.appendChild(div);
-
-        let label = document.createElement("label");
-        label.innerHTML = `<input type="checkbox" checked onchange="toggleDrink(${index})"> ${drink.name}`;
-        label.style.color = drink.color;
-        legend.appendChild(label);
-      });
-    }
-
-    // Crear la gráfica con Chart.js
-    let ctx = document.getElementById('priceChart').getContext('2d');
-    let priceChart = new Chart(ctx, {
-      type: 'line',
-      data: {
-        // Usamos 8 tramos horarias iniciales: 00:00-01:00, …, 07:00-08:00
-        labels: getLabels("00-08"),
-        datasets: drinks.map(d => ({
-          label: d.name,
-          data: Array(8).fill(d.price), // línea horizontal con 8 puntos\n          borderColor: d.color,\n          borderWidth: 2,\n          fill: false,\n          hidden: !d.visible\n        }))\n      },\n      options: {\n        maintainAspectRatio: false,\n        responsive: true,\n        layout: { padding: { left: 60, right: 60 } },\n        scales: {\n          y: {\n            title: { display: true, text: \"Precio (€)\" },\n            ticks: { display: false } // Ocultamos ticks en y\n          },\n          x: {\n            title: { display: true, text: \"Horario\" }\n          }\n        },\n        plugins: {\n          legend: { display: false }\n        }\n      },\n      plugins: ['customLabels']\n    });\n\n    // Actualizar la gráfica según el horario seleccionado y cambios en los cubatas\n    function updateChart() {\n      let timeRange = document.getElementById(\"time-range\").value;\n      priceChart.data.labels = getLabels(timeRange);\n      priceChart.data.datasets.forEach((dataset, index) => {\n        dataset.data = Array(8).fill(drinks[index].price);\n        dataset.hidden = !drinks[index].visible;\n      });\n      priceChart.update();\n    }\n\n    renderDrinks();\n  </script>\n</body>\n</html>
-
+        renderDrinks();
+    </script>
+</body>
+</html>
